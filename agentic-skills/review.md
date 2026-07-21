@@ -138,12 +138,38 @@ The bar for surfacing anything is "I'd want the user to see this." If it doesn't
 
 **Calibration:** if an item collapses to "rename this," it's Low - title + file:line + ≤10 words. If a Medium item resolves into "do X," promote to Critical/High (it's a position, not a question). Err toward brevity; short, honest report is the goal.
 
-### 5. Output structure
+### 5. Adversarially verify findings before rendering
 
-Single readable pass, severity-categorized. No rounds, no pagination, no separate "Questions" section. Every Critical/High/Medium item has the same shape - title, location, brief diagnosis, an Action or Decide line that tells the reader what to do.
+The synthesized list is a set of *candidates*, not the report. Lens agents skim, misread the diff, and occasionally invent a symbol or a code path that isn't there - a plausible-sounding finding is not the same as a real one. Before rendering, stress-test each substantive finding by trying to **refute** it against the actual code, and drop the ones that don't survive. This gate exists to catch false alarms, which cost the reader far more trust than a missed nitpick.
+
+**Scope.** Verify every Critical, High, and Medium item. Low/Picky items are cheap one-liners the reader can dismiss at a glance - spot-check them only if something looks off; don't spend a full verification pass on them.
+
+**Who runs it - orchestrator vs sub-agents.** Pick whichever is faster for the count in hand:
+- **Few substantive findings (roughly ≤4):** the orchestrator verifies them itself, inline. Spawning agents for a handful costs more latency than it saves.
+- **Many findings:** fan out one verifier sub-agent per finding (or small batches) in a single parallel message so they run concurrently - much faster than checking them one after another. Use `subagent_type: general-purpose`, and pass the same prohibited-shell-commands rule from §2 verbatim.
+
+**Refutation mandate (apply to each finding).** Assume the finding is FALSE and try to prove it. Re-read the real code - the pre-collected diff file and the surrounding source via Read/Grep/Glob - not just the finding's own text; the whole point is to catch claims that don't match what's actually there. Check specifically:
+- Does the cited `file:line` actually contain what the finding claims (the symbol exists, the code does what's described)?
+- Is the described failure path actually reachable, or is it already guarded/handled somewhere the lens agent didn't look (caller, validation, framework, a later line)?
+- Does the finding rest on a misread of the diff - a removed line taken as added, the wrong branch, stale surrounding context?
+- For "missing test / missing handling" claims: is it genuinely absent, or present in a location outside the diff?
+
+Return one verdict per finding: **confirmed** (survives, cite the evidence), **false** (refuted - state why), or **overstated** (real but weaker than claimed - give the corrected severity).
+
+**Filter.**
+- **Drop every `false` finding entirely** - do not render it, do not mention it, not even as a footnote.
+- Keep `confirmed` findings; fold the verifier's evidence into the diagnosis where it sharpens the claim.
+- For `overstated` findings, render at the corrected lower severity, or drop to Low/Picky if it collapses to a preference.
+- **When a finding cannot be confirmed against the code, drop it.** An unverifiable finding is treated as false. Prefer a false negative (a marginal real issue dropped) over a false positive (a wrong finding shipped as Critical).
+
+State the tally in the output's opening line (see §6): how many candidates were verified and how many were dropped as false or overstated, so the filtering is visible rather than silent.
+
+### 6. Output structure
+
+Render only the findings that survived §5 verification. Single readable pass, severity-categorized. No rounds, no pagination, no separate "Questions" section. Every Critical/High/Medium item has the same shape - title, location, brief diagnosis, an Action or Decide line that tells the reader what to do.
 
 ```
-Found <N> items - <C> critical, <H> high, <M> medium, <L> low.
+Found <N> items - <C> critical, <H> high, <M> medium, <L> low. (<D> dropped in verification.)
 
 ## Critical
 ### <Title> - `path/to/file:line`
@@ -197,6 +223,6 @@ Found <N> items - <C> critical, <H> high, <M> medium, <L> low.
 
 **Low items (one-liner each):** `[tag]` `path/to/file:line` - ≤10 words. Tags: `[blocker]`, `[bug]`, `[minor]`, `[hygiene]`, `[naming]`, `[nit]`, `[doc]`, `[test]`. No paragraph rationale - trust the reader to greenlight.
 
-### 6. Do NOT post comments to GitHub
+### 7. Do NOT post comments to GitHub
 
 Present the synthesized review to the user. He/she decides what gets submitted.
