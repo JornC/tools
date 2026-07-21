@@ -10,9 +10,9 @@ PR status: !`gh pr view --json title,body,baseRefName,url 2>&1 || echo "No PR fo
 
 ## Review Principles
 
-The lenses below are self-contained - each carries its own mandate and calibration, so no external
-rubric is required. (A longer rationale for each lens can live in a companion `review-principles.md`;
-it is not included here.)
+See [review-principles.md](review-principles.md) for the full rationale behind each lens below. The
+lenses are also self-contained - each carries its own mandate and calibration - so the review runs
+without it.
 
 ## Task
 
@@ -59,9 +59,9 @@ APIs, schemas, migrations, constraints, indices. Do responses expose more than c
 
 Concrete things that *do* qualify:
 
-- **Type/semantic mismatch.** A name claims one thing, the value is another: `mailroomDate` that is actually a timestamp; `calculationFile` that is the main scenario file, not a calculation; `userSpecifics` on a field not specific to users.
-- **Boolean polarity inverted.** `true` should be the expected/default behavior. `disableSubReceptors: false` is wrong shape; rename to `enableSubReceptors: true`.
-- **Name claims a guarantee the impl doesn't keep.** `findActiveSituationId` that returns "first PROPOSED" - caller will assume the wrong contract.
+- **Type/semantic mismatch.** A name claims one thing, the value is another: `createdDate` that is actually a timestamp; `reportFile` that is the record's main file, not a report; `clientSpecifics` on a field not specific to clients.
+- **Boolean polarity inverted.** `true` should be the expected/default behavior. `disableCache: false` is wrong shape; rename to `enableCache: true`.
+- **Name claims a guarantee the impl doesn't keep.** `findActiveId` that returns "the first pending record" - caller will assume the wrong contract.
 - **Established convention violated** in a way readers will trip on (codebase uses `IT` suffix for integration tests and this one doesn't; codebase uses `useXyzStore` for stores and this is `xyzStore`).
 
 Things to skip even if they bug you: a slightly long name; a name you'd have shortened; a name that's accurate but plain; "Collector" vs "Resolver" debates when both are defensible; lambda variable names in short scopes.
@@ -185,7 +185,7 @@ Found <N> items - <C> critical, <H> high, <M> medium, <L> low.
 ...
 ```
 
-**Title:** noun phrase or short imperative - "CalculationInfo synthesized partial", "Drop dead addSituationFromBundle", "Multi-flag silent overwrite". Not a full sentence, not a question.
+**Title:** noun phrase or short imperative - "OrderSummary returned partial", "Drop unused syncLegacyData", "Multi-flag silent overwrite". Not a full sentence, not a question.
 
 **Location:** `file:line` or `file:line-range`. Forward-slash paths. If an item spans multiple sites, list the primary in the header and mention the others in the diagnosis.
 
@@ -193,7 +193,7 @@ Found <N> items - <C> critical, <H> high, <M> medium, <L> low.
 
 **Action line (Critical/High):** concrete fix. Not abstract. Bad: "handle the null case." Good: "Add `if (payload == null) { onFailure(...); return; }` at the top of the success handler." If there are multiple defensible fixes, lead with `Options:` and name 2-3 with the trade-off, then pick one.
 
-**Decide line (Medium):** name the choice + 2-3 options + trade-offs. The synthesizer can have a preference; the reader makes the call. Bad: "Is this the right approach?" Good: "Either (a) fold into RestoreScenarioUtil now and parameterize on data source, or (b) keep two paths with a comment marking the duplication as transitional. (a) reduces future drift; (b) is cheaper for this PR. (a) if the next PR will need the shared util anyway."
+**Decide line (Medium):** name the choice + 2-3 options + trade-offs. The synthesizer can have a preference; the reader makes the call. Bad: "Is this the right approach?" Good: "Either (a) fold into the shared restore util now and parameterize on data source, or (b) keep two paths with a comment marking the duplication as transitional. (a) reduces future drift; (b) is cheaper for this PR. (a) if the next PR will need the shared util anyway."
 
 **Low items (one-liner each):** `[tag]` `path/to/file:line` - ≤10 words. Tags: `[blocker]`, `[bug]`, `[minor]`, `[hygiene]`, `[naming]`, `[nit]`, `[doc]`, `[test]`. No paragraph rationale - trust the reader to greenlight.
 
