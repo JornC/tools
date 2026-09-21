@@ -12,6 +12,12 @@ in the investigation.
 A report that ends in "probably flaky", "infra hiccup" or "slow CI" has not found the cause. Keep
 going, or say plainly that the cause is unknown and which record would find it.
 
+Think of how an onion rots: from the center outward. To find the source you peel it layer by
+layer. Halfway in you will find rot, and it is tempting to stop there and call it the cause. It
+usually isn't. It is rot that spread from further in. A timeout that expired, a container that
+wasn't there, a queue with no consumer: each is a layer. Keep peeling until you reach the layer
+nothing else explains, and fix that one.
+
 ## How to use this
 
 This is a guide, not a script. Every incident is different. Pick the parts that fit, skip the
