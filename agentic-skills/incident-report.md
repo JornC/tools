@@ -1,6 +1,6 @@
 ---
 name: incident-report
-description: Investigate a failed or flaky test run, deploy or environment problem down to its mechanism, and write it up as a blame-free incident report that marks every claim as certain or inferred. Use when asked for "the real reason" a build failed, an incident write-up, a postmortem, or before accepting a timeout bump, retry or rerun as the fix.
+description: Investigate a failed or flaky test run, deploy or environment problem down to its mechanism, and write it up as a blame-free incident report that marks every claim as certain or inferred. Use when asked for "the real reason" a build failed, an incident write-up, a postmortem, or before accepting a timeout bump, retry or rerun as the fix. Human-driven: expect many rounds of questions, not a one-shot answer.
 ---
 
 # Incident report
@@ -17,6 +17,27 @@ layer. Halfway in you will find rot, and it is tempting to stop there and call i
 usually isn't. It is rot that spread from further in. A timeout that expired, a container that
 wasn't there, a queue with no consumer: each is a layer. Keep peeling until you reach the layer
 nothing else explains, and fix that one.
+
+## Who drives this
+
+This is not an autonomous skill. It will not solve an incident in one go. A human drives the
+investigation, and the agent assists.
+
+That comes from experience. Left alone, the agent writes a shallow report that stops at the first
+or second layer and sounds finished. It is not good at doubting its own results. What gets to the
+center is a developer who keeps pushing: who asks hard questions, doubts each answer, and works to
+understand the processes involved themselves. Each layer usually takes another round of that.
+
+So expect many rounds and many questions. For the agent, that means:
+
+- Treat each answer as one layer, not the end. Say which layer you think you reached and what
+  could still sit under it.
+- Say what you did not check and which claims are weakest, so the developer knows where to push.
+- When the developer pushes back, take it as the next step, not something to defend against. Go
+  back to the records.
+- Explain the processes involved plainly, so the developer can judge the mechanism themselves.
+  They need to understand it, not only read the conclusion.
+- Don't declare the investigation done. The developer decides when the center is reached.
 
 ## How to use this
 
