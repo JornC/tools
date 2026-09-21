@@ -16,6 +16,7 @@ What is here so far:
 | `trivial-pr` | The same, cut down for a one-or-two-line change made from a fresh branch. |
 | `review` | Review the current branch through several independent lenses, then try to disprove each finding before reporting it. |
 | `trim-comments` | Push a changeset toward self-documenting code, moving decision history out of comments and into the commit message. |
+| `incident-report` | Find the mechanism behind a failed or flaky run, and write it up as a blame-free report that marks every claim as certain or inferred. |
 | `review-principles` | Reference notes behind the `review` lenses. Not a skill. |
 
 If you use one, make it yours. Fork it, rename it, rewrite it, gut it. Change the voice, the steps,
